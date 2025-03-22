@@ -1,9 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import Sitemap from 'vite-plugin-sitemap'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    Sitemap({ hostname: 'https://magnetoterapija.lt' }),
+  ],
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
@@ -20,8 +24,10 @@ export default defineConfig({
         assetFileNames: 'assets/[name].[hash].[ext]'
       },
     },
+    // Use esbuild for minification instead since it's built-in with Vite
+    minify: 'esbuild',
+    // Remove terser options
   },
-  // Configure resolve.alias if needed for absolute imports
   resolve: {
     alias: {
       '@': '/src'
