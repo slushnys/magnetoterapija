@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Smooth transition for the runaway button movement */
+        #noBtn {
+            transition: all 0.2s ease-out;
+            z-index: 50;
+            touch-action: manipulation;
+        }
+        
+        /* Subtle float animation for the card */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-card {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Flying Hearts Animation */
+        @keyframes fly {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg) scale(1.5); opacity: 0; }
+        }
+        .heart {
+            position: fixed;
+            font-size: 24px;
+            color: #ec4899; /* Pink-500 */
+            user-select: none;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-pink-100 h-screen w-screen overflow-hidden flex items-center justify-center font-sans">
+
+    <!-- Main Card -->
+    <!-- relative: Serves as the boundary for the absolute 'No' button -->
+    <!-- overflow-hidden: Ensures the button stays clipped if it somehow touches the edge -->
+    <div id="card" class="bg-white p-6 md:p-10 rounded-3xl shadow-2xl max-w-md w-full text-center border border-pink-100 float-card relative z-10 mx-4 overflow-hidden">
+        
+        <!-- Question View -->
+        <div id="question-view">
+            <div class="mb-6 md:mb-8">
+                <!-- Heart Icon -->
+                <div class="w-16 h-16 md:w-20 md:h-20 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 shadow-sm animate-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-3 tracking-tight">Date Night?</h1>
+                <p class="text-slate-500 text-base md:text-lg leading-relaxed">
+                    I've been meaning to ask you Charlotte...<br>
+                    Will you go on a romantic date with me? 🌹
+                </p>
+            </div>
+
+            <!-- Button Container -->
+            <!-- REMOVED 'relative' from here. Now 'No' button positions relative to #card -->
+            <div class="flex justify-center gap-4 md:gap-6 h-16 items-start">
+                
+                <button id="yesBtn" class="px-6 py-2 md:px-8 md:py-3 bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-pink-300 text-sm md:text-base z-20">
+                    Yes! ❤️
+                </button>
+                
+                <!-- The Runaway Button -->
+                <button id="noBtn" class="px-6 py-2 md:px-8 md:py-3 bg-gray-400 hover:bg-gray-500 text-white font-bold rounded-xl shadow-lg transition-colors focus:outline-none cursor-not-allowed text-sm md:text-base whitespace-nowrap">
+                    No 😢
+                </button>
+
+            </div>
+        </div>
+
+        <!-- Success View (Hidden by default) -->
+        <div id="success-view" class="hidden flex flex-col items-center">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-pink-600 mb-4">Yaaay! 🎉</h2>
+            
+            <!-- Cute GIF -->
+            <div class="rounded-xl overflow-hidden shadow-lg mb-6 w-full max-w-[250px]">
+                <img src="https://media.giphy.com/media/c76IJLufpNwSULPk77/giphy.gif" alt="Cute celebrating cat" class="w-full h-auto" onerror="this.style.display='none'">
+            </div>
+
+            <p class="text-slate-600 text-base md:text-lg">You made the right choice!</p>
+            <p class="text-slate-800 font-semibold text-lg md:text-xl mt-2">I promise it'll be amazing! ✨</p>
+            
+        </div>
+
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const questionView = document.getElementById('question-view');
+        const successView = document.getElementById('success-view');
+        const card = document.getElementById('card');
+
+        // Logic to move the button to a random position WITHIN the card
+        const moveButton = () => {
+            // Get dimensions of the card container
+            const cardRect = card.getBoundingClientRect();
+            const cardWidth = cardRect.width;
+            const cardHeight = cardRect.height;
+
+            // Get dimensions of the button
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+
+            // Safety padding (pixels) to keep button away from the very edge
+            const padding = 20;
+
+            // Calculate valid ranges
+            const minX = padding;
+            const maxX = cardWidth - btnWidth - padding;
+            
+            const minY = padding;
+            const maxY = cardHeight - btnHeight - padding;
+
+            // Ensure we don't have negative ranges
+            const safeMaxX = Math.max(minX, maxX);
+            const safeMaxY = Math.max(minY, maxY);
+
+            // Generate random coordinates
+            const randomX = Math.random() * (safeMaxX - minX) + minX;
+            const randomY = Math.random() * (safeMaxY - minY) + minY;
+
+            // Apply the new position
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = `${randomX}px`;
+            noBtn.style.top = `${randomY}px`;
+            
+            // Random rotation adds chaos
+            const randomRotation = Math.random() * 20 - 10;
+            noBtn.style.transform = `rotate(${randomRotation}deg)`;
+        };
+
+        // Function to create floating hearts
+        const createHearts = () => {
+            for (let i = 0; i < 50; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '❤️';
+                
+                // Random starting position at the bottom of the screen
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.top = '100vh';
+                
+                // Random animation duration and delay
+                const duration = Math.random() * 3 + 2; // 2-5s
+                const delay = Math.random() * 2; // 0-2s
+                
+                heart.style.animation = `fly ${duration}s ease-in ${delay}s forwards`;
+                
+                document.body.appendChild(heart);
+
+                // Remove heart after animation
+                setTimeout(() => {
+                    heart.remove();
+                }, (duration + delay) * 1000);
+            }
+        };
+
+        // Desktop: Move on hover
+        noBtn.addEventListener('mouseover', moveButton);
+        
+        // Mobile: Move on touch start
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); 
+            moveButton();
+        });
+        
+        // Fallback click handler
+        noBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            moveButton();
+        });
+
+        // Yes Button Logic
+        yesBtn.addEventListener('click', () => {
+            questionView.style.display = 'none';
+            successView.classList.remove('hidden');
+            noBtn.style.display = 'none';
+            
+            // Trigger hearts
+            createHearts();
+        });
+
+    </script>
+</body>
+</html>
